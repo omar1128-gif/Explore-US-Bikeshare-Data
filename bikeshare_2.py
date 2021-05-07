@@ -116,8 +116,10 @@ def get_filters():
         month = 'all'
 
     elif filter_input == 'none':
-        month = 'all'
-        day = 'all'
+        month, day = 'all', 'all'
+    else:
+        print('Invalid filter was entered, filter will be set to none by default.')
+        month, day = 'all', 'all'
 
     print('-'*40)
     return city, month, day
@@ -275,6 +277,8 @@ def main():
                     n += 5
                 elif user_answer == 'no':
                     raw = False
+                else:
+                    print("Invalid entry, please enter yes or no to see raw data.\n")
 
             restart = input('\nWould you like to restart? Enter yes or no.\n')
             if restart.lower() != 'yes':
