@@ -6,8 +6,6 @@ CITY_DATA = {'chicago': 'chicago.csv',
              'new york city': 'new_york_city.csv',
              'washington': 'washington.csv'}
 
-is_WA = False
-
 
 def check_month(m):
     """
@@ -47,16 +45,12 @@ def get_filters():
 
     print('Hello! Let\'s explore some US bikeshare data!\n')
     # get user input for city (chicago, new york city, washington). HINT: Use a while loop to handle invalid inputs
-    global is_WA
     valid_city = False
     while not valid_city:
         city_input = input(
             'Would you like to see data for Chicago, New York, or Washington? \n').lower()
         if city_input == 'new york':
             city_input += ' city'
-
-        if city_input == 'washington':
-            is_WA = True
 
         if city_input in CITY_DATA.keys():
             valid_city = True
@@ -223,25 +217,43 @@ def trip_duration_stats(df):
 
 def user_stats(df):
     """Displays statistics on bikeshare users."""
-    global is_WA
     print('\nCalculating User Stats...\n')
     start_time = time.time()
 
     # Display counts of user types
-    print(df['User Type'].value_counts(), '\n')
+    print('User types: \n {}\n'.format(df['User Type'].value_counts()))
 
     # Display counts of gender
-    if not is_WA:   # We do not have information about gender and year of birth in Washington
-        print(df['Gender'].value_counts(), '\n')
+    try:
+        print('Gender types: \n{}'.format(df['Gender'].value_counts()))
+    except KeyError:
+        print("Gender types:\nNo data available.")
 
-        # Display earliest, most recent, and most common year of birth
+    # Display earliest, most recent, and most common year of birth
+    try:
         print('Earliest year of birth: {}'.format(df['Birth Year'].min()))
+    except KeyError:
+        print('Earliest year of birth:\nNo data available')
+
+    try:
         print('Most recent year of birth: {}'.format(df['Birth Year'].max()))
+    except KeyError:
+        print('Most recent year of birth:\nNo data available')
+
+    try:
         print('Most common year of birth: {}'.format(
             df['Birth Year'].mode()[0]))
+    except KeyError:
+        print('Most common year of birth:\nNo data available')
 
-        print("\nThis took %s seconds." % (time.time() - start_time))
-        print('-'*40)
+    print("\nThis took %s seconds." % (time.time() - start_time))
+    print('-'*40)
+
+
+def display_row_data(df, n):
+    df = df.to_dict(orient='records')
+    for i in range(5):
+        print(df[n+i], '\n')
 
 
 def main():
@@ -254,6 +266,15 @@ def main():
             station_stats(df)
             trip_duration_stats(df)
             user_stats(df)
+            raw, n = True, 0
+            while raw:
+                user_answer = input(
+                    "Would you like to see 5 lines of raw data? Enter yes or no. \n")
+                if user_answer == 'yes':
+                    display_row_data(df, n)
+                    n += 5
+                elif user_answer == 'no':
+                    raw = False
 
             restart = input('\nWould you like to restart? Enter yes or no.\n')
             if restart.lower() != 'yes':
